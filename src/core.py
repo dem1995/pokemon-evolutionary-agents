@@ -88,8 +88,8 @@ class Lib(object):
         return []
 
 
-class DSL(object):
-    pass
+# class DSL(object):
+#     pass
 
 
 def make_dynamic_rule(name, func):
@@ -145,10 +145,6 @@ class Weighted(Sampler):
 def init():
     global RULE, GRAMMAR
     lib_functions = inspect.getmembers(Lib, inspect.isfunction)
-    # lib_func_names = [
-    #     name.upper()
-    #     for name, _ in lib_functions if name[0] != '_'
-    # ]
 
     RULE = enum.Enum('Rule', DEFAULT_RULES + [name.upper() for name, _ in lib_functions])
 
@@ -158,9 +154,9 @@ def init():
         RULE.START: [
             RULE.IF_BLOCK,
         ],
-        RULE.IF_BLOCK: (
+        RULE.IF_BLOCK: [
             [RULE.BOOL_EXP, RULE.IF_BODY],
-        ),
+        ],
         RULE.IF_BODY: [
             RULE.RETURN,
         ],
@@ -214,6 +210,7 @@ def get_random_tree(seed=None):
         random.seed(seed)
     root = Node(RULE.START, id_=get_node_id())
     tree = generate_tree(root)
+
     return tree
 
 
@@ -226,21 +223,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# class MyScript(Script):
-#     def get_action(self, state):
-#         actions = state.available_moves()
-#         scores = []
-#         for a in actions:
-#             score = 0
-#
-#             # generated code
-#             if Lib.get_active_opponent():
-#                 score += 1
-#
-#             if not Lib.get_active_opponent():
-#                 score -= 2
-#             # generated code
-#
-#             scores.append(score)
-#         return actions[scores.index(max(scores))]
