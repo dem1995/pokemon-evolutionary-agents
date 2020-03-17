@@ -23,6 +23,7 @@ tabulate = "==0.8.6"
 urllib3 = "==1.25.8"
 websockets = "==8.1"
 wrapt = "==1.11.2"
+anytree = "*"
 
 [requires]
 python_version = "3.7"
