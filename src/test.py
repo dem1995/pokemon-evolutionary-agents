@@ -24,7 +24,7 @@ async def main():
 	players.extend([
 		RandomPlayer(
 			player_configuration=player_config,
-			battle_format="gen7randombattle",
+			battle_format="gen1randombattle",
 			server_configuration=LocalhostServerConfiguration,
 			max_concurrent_battles=20,
 		)
@@ -37,7 +37,7 @@ async def main():
 	players.extend(
 		MaxDamagePlayer(
 			player_configuration=player_config,
-			battle_format="gen7randombattle",
+			battle_format="gen1randombattle",
 			server_configuration=LocalhostServerConfiguration,
 			max_concurrent_battles=20,
 		)
