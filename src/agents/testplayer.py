@@ -8,7 +8,7 @@ class TestPlayer(Player):
 		dsl = DSL(battle)
 			##Methods check a variety of battle information about opponent
 
-		def 		printstatus():
+		def printstatus():
 			print("battle")
 			print(battle)
 			print("player active")
