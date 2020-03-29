@@ -4,6 +4,8 @@ from poke_env.environment.battle import Battle
 class TypePlayer(Player):
 	def choose_move(self, battle: Battle):
 		# If the player can attack, it will
+
+		print(battle.active_pokemon.base_stats)
 		if battle.available_moves:
 			# Finds the most type-effective move among available ones
 			for move in battle.available_moves:
