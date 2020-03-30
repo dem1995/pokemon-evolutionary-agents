@@ -5,9 +5,11 @@ from poke_env.player.random_player import RandomPlayer
 from poke_env.player.utils import cross_evaluate
 from poke_env.player_configuration import PlayerConfiguration
 from poke_env.server_configuration import LocalhostServerConfiguration
+from poke_env.utils import to_id_str
 from tabulate import tabulate
 
 from agents.maxdam import MaxDamagePlayer
+from agents.testplayer import TestPlayer
 from agents.typeplayer import TypePlayer
 
 
@@ -17,6 +19,7 @@ async def main():
 	player_2_configuration = PlayerConfiguration("Player 2", None)
 	player_3_configuration = PlayerConfiguration("Max Damage Player", None)
 	player_4_configuration = PlayerConfiguration("Type Damage Player", None)
+	player_test_configuration = PlayerConfiguration("Test Player", None)
 
 
 	# # Then, we create the corresponding players.
@@ -24,7 +27,7 @@ async def main():
 	players.extend([
 		RandomPlayer(
 			player_configuration=player_config,
-			battle_format="gen1randombattle",
+			battle_format="gen7randombattle",
 			server_configuration=LocalhostServerConfiguration,
 			max_concurrent_battles=20,
 		)
@@ -35,14 +38,14 @@ async def main():
 	])
 
 	players.extend(
-		MaxDamagePlayer(
+		TestPlayer(
 			player_configuration=player_config,
-			battle_format="gen1randombattle",
+			battle_format="gen7randombattle",
 			server_configuration=LocalhostServerConfiguration,
 			max_concurrent_battles=20,
 		)
 		for player_config in [
-			player_3_configuration,
+			player_test_configuration,
 		]
 	)
 
@@ -60,7 +63,7 @@ async def main():
 
 	# Now, we can cross evaluate them: every player will player 20 games against every
 	# other player.
-	cross_evaluation = await cross_evaluate(players, n_challenges=80)
+	cross_evaluation = await cross_evaluate(players, n_challenges=20)
 
 	# Defines a header for displaying results
 	table = [["-"] + [p.username for p in players]]
@@ -75,3 +78,17 @@ async def main():
 
 if __name__ == "__main__":
 	asyncio.get_event_loop().run_until_complete(main())
+
+# def permission(permission_required):
+#     def decorator(func):
+#         func.permission_required = permission_required
+#         return func
+#     return decorator
+
+# @permission("test")
+# def test1():
+#     print("hi")
+
+# test1()
+# print(test1.permission_required)
+
