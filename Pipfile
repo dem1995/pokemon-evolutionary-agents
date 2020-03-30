@@ -24,6 +24,7 @@ urllib3 = "==1.25.8"
 websockets = "==8.1"
 wrapt = "==1.11.2"
 anytree = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3.7"

@@ -70,23 +70,25 @@ def log_call(func):
     return _wrapper
 
 
-class Lib(object):
-    @log_call
-    def get_teammates():
-        return []
-
-    @log_call
-    def get_opponents():
-        return []
-
-    @log_call
-    def get_active_pokemon():
-        return []
-
-    @log_call
-    def get_active_opponent():
-        return []
-
+#
+#
+# class Lib(object):
+#     @log_call
+#     def get_teammates():
+#         return []
+#
+#     @log_call
+#     def get_opponents():
+#         return []
+#
+#     @log_call
+#     def get_active_pokemon():
+#         return []
+#
+#     @log_call
+#     def get_active_opponent():
+#         return []
+#
 
 # class DSL(object):
 #     pass
@@ -144,6 +146,7 @@ class Weighted(Sampler):
 
 def init():
     global RULE, GRAMMAR
+
     lib_functions = inspect.getmembers(Lib, inspect.isfunction)
 
     RULE = enum.Enum('Rule', DEFAULT_RULES + [name.upper() for name, _ in lib_functions])
@@ -200,7 +203,7 @@ def generate_tree(root):
         raise ValueError
 
     for candidate in candidates:
-        child = Node(candidate, parent=root, id_=get_node_id())
+        child = Node(candidate, parent=root)
         generate_tree(child)
     return root
 
@@ -208,7 +211,7 @@ def generate_tree(root):
 def get_random_tree(seed=None):
     if seed:
         random.seed(seed)
-    root = Node(RULE.START, id_=get_node_id())
+    root = Node(RULE.START)
     tree = generate_tree(root)
 
     return tree
