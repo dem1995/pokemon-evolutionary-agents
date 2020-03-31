@@ -44,12 +44,10 @@ class Node(anytree.Node):
 
 
 class Script(object):
-    def __init__(self, tree):
+    def __init__(self, tree, raw_script):
         super().__init__()
         self.tree = tree
-
-    def get_action(self):
-        raise NotImplementedError
+        self.raw_script = raw_script
 
 
 DEFAULT_RULES = [
@@ -247,12 +245,10 @@ def indent(raw, level):
 
 
 script_template = r"""
-        
-        
-class {0}(Player):
+class {0}(Script):
     def choose_move(self, battle: Battle):
     
-        available_moves = battle.available_moves:
+        available_moves = battle.available_moves
         if not available_moves:
             return self.choose_random_move(battle)
             
@@ -265,36 +261,35 @@ class {0}(Player):
             
         best_move = available_moves[move_scores.index(max(move_scores))]
         return best_move
-        
 """
 
 
-def render(node):
+def derive(node):
     if isinstance(node.name, str):
         return node.name
     elif isinstance(node.name, RULE):
         if node.name == RULE.IF_BLOCK:
             template = "if ({0}):\n{1}\n"
-            bool_exp = render(node.children[0])
-            body = indent(render(node.children[1]), 1)
+            bool_exp = derive(node.children[0])
+            body = indent(derive(node.children[1]), 1)
             return template.format(bool_exp, body)
         elif node.name == RULE.AND_EXP:
             template = "({0} and {1})"
-            left = render(node.children[0])
-            right = render(node.children[1])
+            left = derive(node.children[0])
+            right = derive(node.children[1])
             return template.format(left, right)
         elif node.name == RULE.OR_EXP:
             template = "({0} or {1})"
-            left = render(node.children[0])
-            right = render(node.children[1])
+            left = derive(node.children[0])
+            right = derive(node.children[1])
             return template.format(left, right)
         elif node.name == RULE.NOT_EXP:
             template = "not ({0})"
-            op = render(node.children[0])
+            op = derive(node.children[0])
             return template.format(op)
         elif node.name == RULE.CHANGE_SCORE:
             template = "score += {0}"
-            delta = render(node.children[0])
+            delta = derive(node.children[0])
             return template.format(delta)
         elif node.name == RULE.LIB_CALL:
             if (
@@ -305,18 +300,35 @@ def render(node):
                 # func call with a comparision expression
                 template = "({0}({1}) {2} {3})"
                 func_name, *args, comparator, rhs = node.children
-                func_name = render(func_name)
-                params = ', '.join(render(arg) for arg in args)
-                comparator = render(comparator)
-                rhs = render(rhs)
+                func_name = derive(func_name)
+                params = ', '.join(derive(arg) for arg in args)
+                comparator = derive(comparator)
+                rhs = derive(rhs)
                 return template.format(func_name, params, comparator, rhs)
             else:
                 template = "{0}({1})"
                 func_name, *args = node.children
-                func_name = render(func_name)
-                params = ', '.join(render(arg) for arg in args)
+                func_name = derive(func_name)
+                params = ', '.join(derive(arg) for arg in args)
                 return template.format(func_name, params)
-        return ''.join(render(child) for child in node.children)
+        return ''.join(derive(child) for child in node.children)
+
+
+def render_script(node):
+    script_name = 'Script_' + str(uuid.uuid4()).replace('-', '')
+    code = indent(derive(node), 3)
+    return script_name, script_template.format(script_name, code)
+
+
+def exec_tree(root):
+    raw_script_class, raw_script = render_script(root)
+    try:
+        exec(raw_script)
+        script_class = eval(raw_script_class)
+        return script_class(root, raw_script)
+    except Exception as e:
+        print(e)
+        print(raw_script)
 
 
 def main():
