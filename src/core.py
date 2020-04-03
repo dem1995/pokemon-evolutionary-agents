@@ -10,7 +10,7 @@ from poke_env.environment.pokemon_type import PokemonType
 from poke_env.environment.weather import Weather
 from poke_env.player.player import Player
 from poke_env.environment.battle import Battle
-from DSL import DSL, StatValue, TypeMultiplier, MovePower, OptionalWeather
+from .DSL import DSL, StatValue, TypeMultiplier, MovePower, OptionalWeather
 
 RULE: typing.Optional[enum.Enum] = None
 GRAMMAR: typing.Optional[enum.Enum] = None
