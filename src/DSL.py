@@ -7,57 +7,57 @@ from poke_env.environment.move_category import MoveCategory
 from poke_env.environment.weather import Weather
 from poke_env.utils import to_id_str
 
+#None-able Weather wrapper class
 OptionalWeather = NewType("OptionalWeather", Optional[Weather])
 OptionalWeather.okay_values = frozenset(Weather).union({None})
 
-class TypeMultiplier(float):
-	"""Float wrapper class restricting/providing possible type matchup multipliers"""
-	okay_values = frozenset(2 ** num for num in range(-2, 3)).union({0})
-	def __new__(cls, value):
-		if value not in cls.okay_values:
-			raise ValueError(f'{value} is not an appropriate TypeMultiplier')
-		return float.__new__(cls, value)
+#Float wrapper class restricting/providing possible type matchup multipliers
+TypeMultiplier = NewType("TypeMultiplier", float)
+TypeMultiplier.okay_values = frozenset(2 ** num for num in range(-2, 3)).union({0})
 
-class StatValue(int):
-	"""Int wrapper class restricting/providing possible base stat values"""
-	okay_values = frozenset(range(1, 256))
-	def __new__(cls, value):
-		if value not in cls.okay_values:
-			raise ValueError(f'{value} is not an appropriate StatValue')
-		return int.__new__(cls, value)
+#Int wrapper class restricting/providing possible base stat values
+StatValue = NewType("StatValue", int)
+StatValue.okay_values = frozenset(range(1, 256))
 
-class MovePower(int):
-	"""Int wrapper class providing base move powers"""
-	okay_values = frozenset(range(0, 256))
-	def __new__(cls, value):
-		print(f"Move power is {value}")
-		if value not in cls.okay_values:
-			raise ValueError(f'{value} is not an appropriate MovePower')
-		return int.__new__(cls, value)
+#Int wrapper class restricting/providing base move powers
+MovePower = NewType("MovePower", int)
+MovePower.okay_values = frozenset(range(0, 256))
 
 class DSL:
 	def __init__(self, battle: Battle):
 		self.battle: Battle = battle
 
-	##Methods check a variety of battle information about opponent
+	#Methods check a variety of battle information about opponent
 	def opp_base_defense(self) -> StatValue:
-		return StatValue(self.battle.opponent_active_pokemon.base_stats['def'])
+		precast = self.battle.opponent_active_pokemon.base_stats['def']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def opp_base_spec_defense(self) -> StatValue:
-		return StatValue(self.battle.opponent_active_pokemon.base_stats['spd'])
+		precast = self.battle.opponent_active_pokemon.base_stats['spd']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def opp_base_speed(self) -> StatValue:
-		return StatValue(self.battle.opponent_active_pokemon.base_stats['spd'])
+		precast = self.battle.opponent_active_pokemon.base_stats['spd']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	##Methods that return information about player pokemon
 	def player_base_attack(self) -> StatValue:
-		return StatValue(self.battle.active_pokemon.base_stats['atk'])
+		precast = self.battle.active_pokemon.base_stats['atk']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def player_base_spec_defense(self) -> StatValue:
-		return StatValue(self.battle.active_pokemon.base_stats['spa'])
+		precast = self.battle.active_pokemon.base_stats['spa']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def player_base_speed(self) -> StatValue:
-		return StatValue(self.battle.active_pokemon.base_stats['spe'])
+		precast = self.battle.active_pokemon.base_stats['spe']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	##Methods that check move properties
 	def gets_STAB(self, move: Move) -> bool:
@@ -67,7 +67,9 @@ class DSL:
 
 	def type_multiplier(self, move: Move) -> TypeMultiplier:
 		"""Returns the damage multiplier of the given move against the opponent's Pokemon"""
-		return TypeMultiplier(move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types))
+		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		assert precast in TypeMultiplier.okay_values
+		return TypeMultiplier(precast)
 
 	def move_is_status(self, move: Move) -> bool:
 		return move.category == MoveCategory.STATUS
@@ -79,7 +81,9 @@ class DSL:
 		return move.category == MoveCategory.SPECIAL
 
 	def move_base_power(self, move: Move) -> MovePower:
-		return MovePower(move.base_power)
+		precast = move.base_power
+		assert precast in MovePower.okay_values
+		return MovePower(precast)
 
 	def move_type(self, move: Move) -> PokemonType:
 		return move.type
@@ -110,6 +114,6 @@ class DSL:
 
 	## Weather checks
 	def check_weather(self) -> OptionalWeather:
-		retval = self.battle.weather
-		assert retval in OptionalWeather.okay_values
-		return retval
+		precast = self.battle.weather
+		assert precast in OptionalWeather.okay_values
+		return OptionalWeather(precast)
