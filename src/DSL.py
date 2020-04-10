@@ -27,25 +27,37 @@ class DSL:
 	def __init__(self, battle: Battle):
 		self.battle: Battle = battle
 
-	##Methods check a variety of battle information about opponent
+	#Methods check a variety of battle information about opponent
 	def opp_base_defense(self) -> StatValue:
-		return StatValue(self.battle.opponent_active_pokemon.base_stats['def'])
+		precast = self.battle.opponent_active_pokemon.base_stats['def']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def opp_base_spec_defense(self) -> StatValue:
-		return StatValue(self.battle.opponent_active_pokemon.base_stats['spd'])
+		precast = self.battle.opponent_active_pokemon.base_stats['spd']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def opp_base_speed(self) -> StatValue:
-		return StatValue(self.battle.opponent_active_pokemon.base_stats['spd'])
+		precast = self.battle.opponent_active_pokemon.base_stats['spd']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	##Methods that return information about player pokemon
 	def player_base_attack(self) -> StatValue:
-		return StatValue(self.battle.active_pokemon.base_stats['atk'])
+		precast = self.battle.active_pokemon.base_stats['atk']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def player_base_spec_defense(self) -> StatValue:
-		return StatValue(self.battle.active_pokemon.base_stats['spa'])
+		precast = self.battle.active_pokemon.base_stats['spa']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	def player_base_speed(self) -> StatValue:
-		return StatValue(self.battle.active_pokemon.base_stats['spe'])
+		precast = self.battle.active_pokemon.base_stats['spe']
+		assert precast in StatValue.okay_values
+		return StatValue(precast)
 
 	##Methods that check move properties
 	def gets_STAB(self, move: Move) -> bool:
@@ -55,7 +67,9 @@ class DSL:
 
 	def type_multiplier(self, move: Move) -> TypeMultiplier:
 		"""Returns the damage multiplier of the given move against the opponent's Pokemon"""
-		return TypeMultiplier(move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types))
+		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		assert precast in TypeMultiplier.okay_values
+		return TypeMultiplier(precast)
 
 	def move_is_status(self, move: Move) -> bool:
 		return move.category == MoveCategory.STATUS
@@ -67,7 +81,9 @@ class DSL:
 		return move.category == MoveCategory.SPECIAL
 
 	def move_base_power(self, move: Move) -> MovePower:
-		return MovePower(move.base_power)
+		precast = move.base_power
+		assert precast in MovePower.okay_values
+		return MovePower(precast)
 
 	def move_type(self, move: Move) -> PokemonType:
 		return move.type
@@ -98,6 +114,6 @@ class DSL:
 
 	## Weather checks
 	def check_weather(self) -> OptionalWeather:
-		retval = self.battle.weather
-		assert retval in OptionalWeather.okay_values
-		return retval
+		precast = self.battle.weather
+		assert precast in OptionalWeather.okay_values
+		return OptionalWeather(precast)
