@@ -12,6 +12,7 @@ from agents.maxdam import MaxDamagePlayer
 from agents.testplayer import TestPlayer
 from agents.typeplayer import TypePlayer
 
+max_concurrent_battles = 20
 
 async def main():
 	# First, we define three player configurations.
@@ -29,7 +30,7 @@ async def main():
 			player_configuration=player_config,
 			battle_format="gen7randombattle",
 			server_configuration=LocalhostServerConfiguration,
-			max_concurrent_battles=20,
+			max_concurrent_battles=max_concurrent_battles,
 		)
 		for player_config in [
 			player_1_configuration,
@@ -42,7 +43,7 @@ async def main():
 			player_configuration=player_config,
 			battle_format="gen7randombattle",
 			server_configuration=LocalhostServerConfiguration,
-			max_concurrent_battles=20,
+			max_concurrent_battles=max_concurrent_battles,
 		)
 		for player_config in [
 			player_test_configuration,
@@ -54,7 +55,7 @@ async def main():
 			player_configuration=player_config,
 			battle_format="gen7randombattle",
 			server_configuration=LocalhostServerConfiguration,
-			max_concurrent_battles=20,
+			max_concurrent_battles=max_concurrent_battles,
 		)
 		for player_config in [
 			player_4_configuration,

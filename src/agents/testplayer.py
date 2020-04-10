@@ -33,7 +33,7 @@ class TestPlayer(Player):
 		print(f"Test method {i}") #2
 		i+=1
 		printstatus()
-		print(dsl.opp_speed())
+		print(dsl.opp_base_speed())
 		print(f"Test method {i}") #3
 		i+=1
 		printstatus()
@@ -98,5 +98,9 @@ class TestPlayer(Player):
 		i+=1
 		printstatus()
 		print(dsl.check_move_rainy(list(battle.active_pokemon.moves.values())[0]))
+		print(f"Test method {i}") #18
+		i+=1
+		printstatus()
+		print(dsl.check_weather())
 
 		return self.choose_random_move(battle)

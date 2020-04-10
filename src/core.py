@@ -7,10 +7,10 @@ import random
 
 import anytree
 from poke_env.environment.pokemon_type import PokemonType
+from poke_env.environment.weather import Weather
 from poke_env.player.player import Player
 from poke_env.environment.battle import Battle
-
-from .DSL import DSL
+from .DSL import DSL, StatValue, TypeMultiplier, MovePower, OptionalWeather
 
 RULE: typing.Optional[enum.Enum] = None
 GRAMMAR: typing.Optional[enum.Enum] = None
@@ -64,11 +64,15 @@ DEFAULT_RULES = [
     "PLUS_EQ_OR_MINUS_EQ",
     "RETURN",
     "LIB_CALL",
-    "FLOAT_NUM",
-    "INT_NUM",
+    # "FLOAT_NUM",
+    # "INT_NUM",
+    "TYPE_MULTIPLIER_FLOAT_NUM",
+    "STAT_VALUE_INT_NUM",
+    "MOVE_POWER_INT_NUM",
     "NUM_COMPARATOR",
     "ENUM_COMPARATOR",
     "POKEMON_TYPE",
+    "OPTIONAL_WEATHER",
 ]
 
 
@@ -86,19 +90,27 @@ def make_dynamic_rule(name, func):
     param_lookup = {
         'self': 'self',
         'move': 'move',
-        'float_num': RULE.FLOAT_NUM,
-        'int_num': RULE.INT_NUM,
+        # 'float_num': RULE.FLOAT_NUM,
+        # 'int_num': RULE.INT_NUM,
     }
     if name != '__init__':
         params = list(map(param_lookup.get, inspect.signature(func).parameters))[1:]
         return_type = typing.get_type_hints(func).get('return', None)
         func_name = 'dsl.' + name.lower()
-        if return_type is int:
-            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.INT_NUM]
-        elif return_type is float:
-            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.FLOAT_NUM]
+        # if return_type is int:
+        #     rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.INT_NUM]
+        # elif return_type is float:
+        #     rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.FLOAT_NUM]
+        if return_type is TypeMultiplier:
+            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.TYPE_MULTIPLIER_FLOAT_NUM]
+        elif return_type is StatValue:
+            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.STAT_VALUE_INT_NUM]
+        elif return_type is MovePower:
+            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.MOVE_POWER_INT_NUM]
         elif return_type is PokemonType:
             rule = [func_name, *params, RULE.ENUM_COMPARATOR, RULE.POKEMON_TYPE]
+        elif return_type is OptionalWeather:
+            rule = [func_name, *params, RULE.ENUM_COMPARATOR, RULE.OPTIONAL_WEATHER]
         elif return_type is bool:
             rule = [func_name, *params]
         else:
@@ -187,9 +199,13 @@ def init():
             RULE.SCORE_NUM
         ],
         RULE.SCORE_NUM: [str(num) for num in range(-8, 9) if num != 0],
-        RULE.FLOAT_NUM: [str(2 ** num) for num in range(-2, 3)],
-        RULE.INT_NUM: [str(num) for num in range(256)],
+        # RULE.FLOAT_NUM: [str(2 ** num) for num in range(-2, 3)],
+        # RULE.INT_NUM: [str(num) for num in range(256)],
+        RULE.TYPE_MULTIPLIER_FLOAT_NUM: [str(num) for num in TypeMultiplier.okay_values],
+        RULE.STAT_VALUE_INT_NUM: [str(num) for num in StatValue.okay_values],
+        RULE.MOVE_POWER_INT_NUM: [str(num) for num in MovePower.okay_values],
         RULE.POKEMON_TYPE: ['PokemonType.' + t.name for t in PokemonType],
+        RULE.OPTIONAL_WEATHER: ['Weather.' + w.name for w in Weather] + ['None'],
         RULE.NUM_COMPARATOR: [
             "==", "<=", ">="
         ],
@@ -333,7 +349,7 @@ def exec_tree(root):
 
 def main():
     print(GRAMMAR)
-    for i in range(10):
+    for i in range(20):
         get_random_tree(seed=i).print()
 
 
