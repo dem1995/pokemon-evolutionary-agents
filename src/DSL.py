@@ -7,33 +7,21 @@ from poke_env.environment.move_category import MoveCategory
 from poke_env.environment.weather import Weather
 from poke_env.utils import to_id_str
 
+#None-able Weather wrapper class
 OptionalWeather = NewType("OptionalWeather", Optional[Weather])
 OptionalWeather.okay_values = frozenset(Weather).union({None})
 
-class TypeMultiplier(float):
-	"""Float wrapper class restricting/providing possible type matchup multipliers"""
-	okay_values = frozenset(2 ** num for num in range(-2, 3)).union({0})
-	def __new__(cls, value):
-		if value not in cls.okay_values:
-			raise ValueError(f'{value} is not an appropriate TypeMultiplier')
-		return float.__new__(cls, value)
+#Float wrapper class restricting/providing possible type matchup multipliers
+TypeMultiplier = NewType("TypeMultiplier", float)
+TypeMultiplier.okay_values = frozenset(2 ** num for num in range(-2, 3)).union({0})
 
-class StatValue(int):
-	"""Int wrapper class restricting/providing possible base stat values"""
-	okay_values = frozenset(range(1, 256))
-	def __new__(cls, value):
-		if value not in cls.okay_values:
-			raise ValueError(f'{value} is not an appropriate StatValue')
-		return int.__new__(cls, value)
+#Int wrapper class restricting/providing possible base stat values
+StatValue = NewType("StatValue", int)
+StatValue.okay_values = frozenset(range(1, 256))
 
-class MovePower(int):
-	"""Int wrapper class providing base move powers"""
-	okay_values = frozenset(range(0, 256))
-	def __new__(cls, value):
-		print(f"Move power is {value}")
-		if value not in cls.okay_values:
-			raise ValueError(f'{value} is not an appropriate MovePower')
-		return int.__new__(cls, value)
+#Int wrapper class restricting/providing base move powers
+MovePower = NewType("MovePower", int)
+MovePower.okay_values = frozenset(range(0, 256))
 
 class DSL:
 	def __init__(self, battle: Battle):
