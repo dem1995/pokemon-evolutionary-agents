@@ -39,7 +39,7 @@ class DSL:
 		return StatValue(precast)
 
 	def opp_base_speed(self) -> StatValue:
-		precast = self.battle.opponent_active_pokemon.base_stats['spd']
+		precast = self.battle.opponent_active_pokemon.base_stats['spe']
 		assert precast in StatValue.okay_values
 		return StatValue(precast)
 
