@@ -18,7 +18,7 @@ StatValue.okay_values = frozenset(range(1, 256))
 MovePower = NewType("MovePower", int)
 MovePower.okay_values = frozenset(range(0, 256))
 
-#Int wrapper class restricting/providing percentage values out of 100
+#Int wrapper class restricting/providing percentage values from 0 to 100
 PercentageValue = NewType("PercentageValue", int)
 PercentageValue.okay_values = frozenset(range(0, 101))
 PercentageValue.suggested_values = frozenset(range(0, 101, 10))
