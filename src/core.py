@@ -10,7 +10,7 @@ from poke_env.environment.pokemon_type import PokemonType
 from poke_env.environment.weather import Weather
 from poke_env.player.player import Player
 from poke_env.environment.battle import Battle
-from .DSL import DSL, StatValue, TypeMultiplier, MovePower, OptionalWeather
+from DSL import DSL, OptionalWeather, TypeMultiplier, StatValue, MovePower, PercentageValue, BaseStatCategory, BattleStatCategory, BattleStatModifier
 
 RULE: typing.Optional[enum.Enum] = None
 GRAMMAR: typing.Optional[enum.Enum] = None
@@ -64,11 +64,13 @@ DEFAULT_RULES = [
     "PLUS_EQ_OR_MINUS_EQ",
     "RETURN",
     "LIB_CALL",
-    # "FLOAT_NUM",
-    # "INT_NUM",
     "TYPE_MULTIPLIER_FLOAT_NUM",
     "STAT_VALUE_INT_NUM",
     "MOVE_POWER_INT_NUM",
+    "PERCENTAGE_VALUE_INT_NUM",
+    "BASE_STAT_CATEGORY",
+    "BATTLE_STAT_CATEGORY",
+    "BATTLE_STAT_MODIFIER",
     "NUM_COMPARATOR",
     "ENUM_COMPARATOR",
     "POKEMON_TYPE",
@@ -90,23 +92,27 @@ def make_dynamic_rule(name, func):
     param_lookup = {
         'self': 'self',
         'move': 'move',
-        # 'float_num': RULE.FLOAT_NUM,
-        # 'int_num': RULE.INT_NUM,
+        'base_stat_category': RULE.BASE_STAT_CATEGORY,
+        'battle_stat_category': RULE.BATTLE_STAT_CATEGORY,
     }
     if name != '__init__':
         params = list(map(param_lookup.get, inspect.signature(func).parameters))[1:]
         return_type = typing.get_type_hints(func).get('return', None)
         func_name = 'dsl.' + name.lower()
-        # if return_type is int:
-        #     rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.INT_NUM]
-        # elif return_type is float:
-        #     rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.FLOAT_NUM]
         if return_type is TypeMultiplier:
             rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.TYPE_MULTIPLIER_FLOAT_NUM]
         elif return_type is StatValue:
             rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.STAT_VALUE_INT_NUM]
         elif return_type is MovePower:
             rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.MOVE_POWER_INT_NUM]
+        elif return_type is PercentageValue:
+            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.PERCENTAGE_VALUE_INT_NUM]
+        elif return_type is BattleStatModifier:
+            rule = [func_name, *params, RULE.NUM_COMPARATOR, RULE.BATTLE_STAT_MODIFIER]
+        elif return_type is BaseStatCategory:
+            rule = [func_name, *params, RULE.ENUM_COMPARATOR, RULE.BASE_STAT_CATEGORY]
+        elif return_type is BattleStatCategory:
+            rule = [func_name, *params, RULE.ENUM_COMPARATOR, RULE.BATTLE_STAT_CATEGORY],
         elif return_type is PokemonType:
             rule = [func_name, *params, RULE.ENUM_COMPARATOR, RULE.POKEMON_TYPE]
         elif return_type is OptionalWeather:
@@ -199,20 +205,21 @@ def init():
             RULE.SCORE_NUM
         ],
         RULE.SCORE_NUM: [str(num) for num in range(-8, 9) if num != 0],
-        # RULE.FLOAT_NUM: [str(2 ** num) for num in range(-2, 3)],
-        # RULE.INT_NUM: [str(num) for num in range(256)],
         RULE.TYPE_MULTIPLIER_FLOAT_NUM: [str(num) for num in TypeMultiplier.okay_values],
         RULE.STAT_VALUE_INT_NUM: [str(num) for num in StatValue.okay_values],
         RULE.MOVE_POWER_INT_NUM: [str(num) for num in MovePower.okay_values],
+        RULE.PERCENTAGE_VALUE_INT_NUM: [str(num) for num in PercentageValue.suggested_values],
+        RULE.BASE_STAT_CATEGORY: list(BaseStatCategory.okay_values),
+        RULE.BATTLE_STAT_CATEGORY: list(BattleStatCategory.okay_values),
+        RULE.BATTLE_STAT_MODIFIER: [str(num) for num in BattleStatModifier.okay_values],
         RULE.POKEMON_TYPE: ['PokemonType.' + t.name for t in PokemonType],
         RULE.OPTIONAL_WEATHER: ['Weather.' + w.name for w in Weather] + ['None'],
         RULE.NUM_COMPARATOR: [
-            "<=", ">="
+            "<=", ">=" 
         ],
         RULE.ENUM_COMPARATOR: [
             "==", "!="
         ],
-
         RULE.LIB_CALL: dynamic_rules,
     }
 
