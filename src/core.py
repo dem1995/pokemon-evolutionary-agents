@@ -207,7 +207,7 @@ def init():
         RULE.POKEMON_TYPE: ['PokemonType.' + t.name for t in PokemonType],
         RULE.OPTIONAL_WEATHER: ['Weather.' + w.name for w in Weather] + ['None'],
         RULE.NUM_COMPARATOR: [
-            "==", "<=", ">="
+            "<=", ">="
         ],
         RULE.ENUM_COMPARATOR: [
             "==", "!="
