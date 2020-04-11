@@ -1,6 +1,7 @@
 #Pokemon\-Showdown/
 .vscode/
 venv-linux/
+ignored/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
