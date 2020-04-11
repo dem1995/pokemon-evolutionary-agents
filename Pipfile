@@ -25,6 +25,10 @@ websockets = "==8.1"
 wrapt = "==1.11.2"
 anytree = "*"
 ipykernel = "*"
+trueskill = "*"
+tqdm = "*"
+ipywidgets = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"

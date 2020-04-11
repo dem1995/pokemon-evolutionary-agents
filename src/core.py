@@ -277,7 +277,7 @@ class {0}(Script):
     
         available_moves = battle.available_moves
         if not available_moves:
-            return self.choose_random_move(battle)
+            return random.choice(battle.available_switches)
             
         dsl = DSL(battle)
         move_scores = []
