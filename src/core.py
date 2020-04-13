@@ -8,9 +8,10 @@ import random
 import anytree
 from poke_env.environment.pokemon_type import PokemonType
 from poke_env.environment.weather import Weather
+from poke_env.environment.status import Status
 from poke_env.player.player import Player
 from poke_env.environment.battle import Battle
-from DSL import DSL, OptionalWeather, TypeMultiplier, StatValue, MovePower, PercentageValue, BaseStatCategory, BattleStatCategory, BattleStatModifier
+from DSL import DSL, OptionalWeather, TypeMultiplier, StatValue, MovePower, PercentageValue, BaseStatCategory, BattleStatCategory, BattleStatModifier, OptionalStatus
 
 RULE: typing.Optional[enum.Enum] = None
 GRAMMAR: typing.Optional[enum.Enum] = None
@@ -71,6 +72,7 @@ DEFAULT_RULES = [
     "BASE_STAT_CATEGORY",
     "BATTLE_STAT_CATEGORY",
     "BATTLE_STAT_MODIFIER",
+    "OPTIONAL_STATUS",
     "NUM_COMPARATOR",
     "ENUM_COMPARATOR",
     "POKEMON_TYPE",
@@ -94,6 +96,7 @@ def make_dynamic_rule(name, func):
         'move': 'move',
         'base_stat_category': RULE.BASE_STAT_CATEGORY,
         'battle_stat_category': RULE.BATTLE_STAT_CATEGORY,
+        'optional_status': RULE.OPTIONAL_STATUS,
     }
     if name != '__init__':
         params = list(map(param_lookup.get, inspect.signature(func).parameters))[1:]
@@ -213,6 +216,7 @@ def init():
         RULE.BATTLE_STAT_CATEGORY: list(BattleStatCategory.okay_values),
         RULE.BATTLE_STAT_MODIFIER: [str(num) for num in BattleStatModifier.okay_values],
         RULE.POKEMON_TYPE: ['PokemonType.' + t.name for t in PokemonType],
+        RULE.OPTIONAL_STATUS: ['Status.' + s.name for s in Status] + ['None'],
         RULE.OPTIONAL_WEATHER: ['Weather.' + w.name for w in Weather] + ['None'],
         RULE.NUM_COMPARATOR: [
             "<=", ">=" 

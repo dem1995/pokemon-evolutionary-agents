@@ -3,18 +3,21 @@ from poke_env.environment.battle import Battle
 from poke_env.environment.move import Move
 from poke_env.environment.pokemon_type import PokemonType
 from poke_env.environment.move_category import MoveCategory
+from poke_env.environment.status import Status
 from poke_env.environment.weather import Weather
 from poke_env.utils import to_id_str
 from DSL.dsl_toggle_categories import TOGGLE_CATEGORY, decorate_toggle_category
 from DSL.dsl_types import *
 
 #Change the value of this to decide what methods get included in the DSL
-toggledCategory = TOGGLE_CATEGORY.ADVANCED
+#toggledCategory = TOGGLE_CATEGORY.ADVANCED
+#toggledCategory = TOGGLE_CATEGORY.BASIC
+#toggledCategory = TOGGLE_CATEGORY.BASIC_WITH_CHEATING
+toggledCategory = TOGGLE_CATEGORY.CHEAT
 
 class _DSLRoot:
 	def __init__(self, battle: Battle):
 		self.battle: Battle = battle
-
 
 class _DSLManualStatcheck(_DSLRoot):
 
@@ -89,7 +92,6 @@ class _DSLManualStatcheck(_DSLRoot):
 		assert precast in BattleStatModifier.okay_values
 		return BattleStatModifier(precast)
 
-
 #Methods that automatically cover the gamut of player/opponent stat/buff checks
 class _DSLAutoStatcheck(_DSLRoot):
 
@@ -113,6 +115,17 @@ class _DSLAutoStatcheck(_DSLRoot):
 		assert precast in BattleStatModifier.okay_values
 		return BattleStatModifier(precast)
 
+#Methods that automatically cover the gamut of player/opponent status effects
+class _DSLAutoStatuscheck(_DSLRoot):	
+	def player_has_status_effect(self, status_effect: OptionalStatus) -> bool:
+		precast = self.battle.active_pokemon.status
+		assert precast in OptionalStatus.okay_values
+		return OptionalStatus(precast) == status_effect
+		
+	def opp_has_status_effect(self, status_effect: OptionalStatus) -> bool:
+		precast = self.battle.opponent_active_pokemon.status
+		assert precast in OptionalStatus.okay_values
+		return OptionalStatus(precast) == status_effect
 
 #Methods that check move properties
 class _DSLMoveProperties(_DSLRoot):
@@ -150,6 +163,64 @@ class _DSLMoveProperties(_DSLRoot):
 	def move_type(self, move: Move) -> PokemonType:
 		return move.type
 
+	def check_move_inflicts_status_condition(self, move: Move, optional_status: OptionalStatus) -> bool:
+		return move.status == optional_status
+
+
+#Human-designed methods for use in a simple human-designed AI
+class _DSLCheat(_DSLRoot):
+	def is_raining_and_move_is_water(self, move: Move) -> bool:
+		is_raining = self.battle.weather in {Weather.RAINDANCE, Weather.PRIMORDIALSEA}
+		move_is_water = move.type == PokemonType.WATER
+		return is_raining and move_is_water
+		
+	def is_sunny_and_move_is_fire(self, move: Move) -> bool:	
+		is_sunny = self.battle.weather in {Weather.SUNNYDAY, Weather.DESOLATELAND}
+		move_is_fire = move.type == PokemonType.FIRE
+		return is_sunny and move_is_fire
+	
+	def is_raining_and_move_is_not_fire(self, move: Move) -> bool:
+		is_raining = self.battle.weather in {Weather.RAINDANCE, Weather.PRIMORDIALSEA}
+		move_is_not_fire = move.type != PokemonType.FIRE
+		return is_raining and move_is_not_fire
+
+	def is_sunny_and_move_is_not_water(self, move: Move) -> bool:
+		is_sunny = self.battle.weather in {Weather.SUNNYDAY, Weather.DESOLATELAND}
+		move_is_not_water = move.type != PokemonType.WATER
+		return is_sunny and move_is_not_water
+
+	def is_hyper_effective(self, move: Move) -> bool:
+		#print(move.type)
+		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		casted =  TypeMultiplier(precast)
+		return casted == 4
+	
+	def is_super_effective(self, move: Move) -> bool:
+		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		casted =  TypeMultiplier(precast)
+		return casted == 2
+
+	def is_not_ineffective(self, move: Move) -> bool:
+		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		casted =  TypeMultiplier(precast)
+		return casted >=1
+
+	def is_physical_attacker_and_move_physical(self, move: Move) -> bool:
+		is_physical_attacker = (self.battle.active_pokemon.base_stats['atk'] > 
+			self.battle.active_pokemon.base_stats['spa'])
+		return is_physical_attacker and (move.category == MoveCategory.PHYSICAL)
+
+	def is_special_attacker_and_move_special(self, move: Move) -> bool:
+		is_special_attacker = (self.battle.active_pokemon.base_stats['spa'] >= 
+			self.battle.active_pokemon.base_stats['atk'])
+		return is_special_attacker and (move.category == MoveCategory.SPECIAL)
+
+	def is_opponent_primarily_attack_and_is_not_burnt_and_move_is_burning_and_opp_not_afflicted(self, move: Move) -> bool:
+		opponent_primarily_attack = self.battle.opponent_active_pokemon.base_stats['atk'] > self.battle.opponent_active_pokemon.base_stats["spa"]
+		opponent_not_afflicted = self.battle.opponent_active_pokemon.status == None
+		move_is_burning = move.status == Status.BRN
+		return opponent_primarily_attack and opponent_not_afflicted and move_is_burning
+
 
 #Miscellaneous methods currently included
 class _DSLMisc(_DSLRoot):
@@ -165,6 +236,14 @@ class _DSLMisc(_DSLRoot):
 		precast = round(self.battle.opponent_active_pokemon.current_hp_fraction*100)
 		assert precast in PercentageValue.okay_values
 		return PercentageValue(precast)
+
+
+	# Weather checks
+
+	def get_weather(self) -> OptionalWeather:
+		precast = self.battle.weather
+		assert precast in OptionalWeather.okay_values
+		return OptionalWeather(precast)
 
 
 	#Move-specific checks
@@ -196,23 +275,24 @@ class _DSLMisc(_DSLRoot):
 		return move.boosts[battle_stat_category]>=1
 
 
-	# Weather checks
-
-	def check_weather(self) -> OptionalWeather:
-		precast = self.battle.weather
-		assert precast in OptionalWeather.okay_values
-		return OptionalWeather(precast)
-
-
 base_classes = set()
 if TOGGLE_CATEGORY.AUTO_STATCHECK in toggledCategory:
 	base_classes.add(_DSLAutoStatcheck)
+if TOGGLE_CATEGORY.AUTO_STATUSCHECK in toggledCategory:
+	base_classes.add(_DSLAutoStatuscheck)
 if TOGGLE_CATEGORY.MANUAL_STATCHECK in toggledCategory:
 	base_classes.add(_DSLManualStatcheck)
+if TOGGLE_CATEGORY.CHEAT in toggledCategory:
+	base_classes.add(_DSLCheat)
+if TOGGLE_CATEGORY.CORE in toggledCategory:
+	base_classes.add(_DSLMoveProperties)
+	base_classes.add(_DSLMisc)
 
-base_classes.add(_DSLMoveProperties)
-base_classes.add(_DSLMisc)
+all_classes = {_DSLAutoStatcheck, _DSLAutoStatuscheck, _DSLManualStatcheck, _DSLCheat, _DSLMoveProperties, _DSLMisc}
 
 
 class DSL(*base_classes):
+	pass
+
+class DSL_ALL(*all_classes):
 	pass

@@ -1,10 +1,15 @@
 """Additional types to facility the grammar/AST derivation"""
 from typing import NewType, Optional
 from poke_env.environment.weather import Weather
+from poke_env.environment.status import Status
 
 #None-able Weather wrapper class
 OptionalWeather = NewType("OptionalWeather", Optional[Weather])
 OptionalWeather.okay_values = frozenset(Weather).union({None})
+
+#None-able Status wrapper class
+OptionalStatus = NewType("OptionalStatus", Optional[Status])
+OptionalStatus.okay_values = frozenset(Status).union({None})
 
 #Float wrapper class restricting/providing possible type matchup multipliers
 TypeMultiplier = NewType("TypeMultiplier", float)
