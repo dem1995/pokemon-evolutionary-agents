@@ -9,8 +9,8 @@ from poke_env.utils import to_id_str
 from tabulate import tabulate
 
 from agents.maxdam import MaxDamagePlayer
-from agents.testplayer import TestPlayer
 from agents.typeplayer import TypePlayer
+from agents.cheater import CheaterPlayer
 
 max_concurrent_battles = 20
 
@@ -20,7 +20,9 @@ async def main():
 	player_2_configuration = PlayerConfiguration("Player 2", None)
 	player_3_configuration = PlayerConfiguration("Max Damage Player", None)
 	player_4_configuration = PlayerConfiguration("Type Damage Player", None)
-	player_test_configuration = PlayerConfiguration("Test Player", None)
+	cheater_player_config = PlayerConfiguration("Cheater Player", None)
+	#player_custom_configuration = PlayerConfiguration("Custom Player", None)
+	#player_test_configuration = PlayerConfiguration("Test Player", None)
 
 
 	# # Then, we create the corresponding players.
@@ -33,32 +35,32 @@ async def main():
 			max_concurrent_battles=max_concurrent_battles,
 		)
 		for player_config in [
-			player_1_configuration,
+			player_4_configuration
 	#		player_2_configuration,
 		]
 	])
 
-	players.extend(
-		TestPlayer(
-			player_configuration=player_config,
-			battle_format="gen7randombattle",
-			server_configuration=LocalhostServerConfiguration,
-			max_concurrent_battles=max_concurrent_battles,
-		)
-		for player_config in [
-			player_test_configuration,
-		]
-	)
+	# players.extend(
+	# 	CheaterPlayer(
+	# 		player_configuration=player_config,
+	# 		battle_format="gen7randombattle",
+	# 		server_configuration=LocalhostServerConfiguration,
+	# 		max_concurrent_battles=max_concurrent_battles,
+	# 	)
+	# 	for player_config in [
+	# 		player_custom_configuration,
+	# 	]
+	# )
 
 	players.extend([
-		TypePlayer(
+		CheaterPlayer(
 			player_configuration=player_config,
 			battle_format="gen7randombattle",
 			server_configuration=LocalhostServerConfiguration,
 			max_concurrent_battles=max_concurrent_battles,
 		)
 		for player_config in [
-			player_4_configuration,
+			cheater_player_config
 		]
 	])
 
