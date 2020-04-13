@@ -29,6 +29,9 @@ trueskill = "*"
 tqdm = "*"
 ipywidgets = "*"
 pandas = "*"
+aiofiles = "*"
+bokeh = "*"
+dill = "*"
 
 [requires]
 python_version = "3.7"

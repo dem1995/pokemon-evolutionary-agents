@@ -171,7 +171,7 @@ def init():
 
     lib_functions = inspect.getmembers(DSL, inspect.isfunction)
 
-    RULE = enum.Enum('Rule', DEFAULT_RULES + [name.upper() for name, _ in lib_functions])
+    RULE = enum.Enum('RULE', DEFAULT_RULES + [name.upper() for name, _ in lib_functions])
 
     dynamic_rules = [make_dynamic_rule(name, func) for name, func in lib_functions]
     print(dynamic_rules)
