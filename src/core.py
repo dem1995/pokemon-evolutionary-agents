@@ -183,7 +183,7 @@ def init():
 
     GRAMMAR = {
         RULE.START: [
-            Diminishing(0.85, RULE.IF_BLOCK),
+            Diminishing(0.80, RULE.IF_BLOCK),
         ],
         RULE.IF_BLOCK: [
             [RULE.BOOL_EXP, RULE.IF_BODY],
@@ -205,7 +205,7 @@ def init():
         RULE.BOOL_EXP: [
             RULE.BOOL,
             RULE.AND_EXP,
-            RULE.OR_EXP
+            RULE.OR_EXP,
             # RULE.NOT_EXP,
         ],
         RULE.AND_EXP: [
@@ -228,8 +228,8 @@ def init():
         RULE.STAT_VALUE_INT_NUM: [str(num) for num in StatValue.okay_values],
         RULE.MOVE_POWER_INT_NUM: [str(num) for num in MovePower.okay_values],
         RULE.PERCENTAGE_VALUE_INT_NUM: [str(num) for num in PercentageValue.suggested_values],
-        RULE.BASE_STAT_CATEGORY: list(BaseStatCategory.okay_values),
-        RULE.BATTLE_STAT_CATEGORY: list(BattleStatCategory.okay_values),
+        RULE.BASE_STAT_CATEGORY: ["'" + val + "'" for val in BaseStatCategory.okay_values],
+        RULE.BATTLE_STAT_CATEGORY: ["'" + val + "'" for val in BattleStatCategory.okay_values],
         RULE.BATTLE_STAT_MODIFIER: [str(num) for num in BattleStatModifier.okay_values],
         RULE.POKEMON_TYPE: ['PokemonType.' + t.name for t in PokemonType],
         RULE.OPTIONAL_STATUS: ['Status.' + s.name for s in Status] + ['None'],

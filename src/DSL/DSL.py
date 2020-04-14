@@ -13,7 +13,7 @@ from .dsl_types import *
 # toggledCategory = TOGGLE_CATEGORY.ADVANCED
 # toggledCategory = TOGGLE_CATEGORY.BASIC
 # toggledCategory = TOGGLE_CATEGORY.BASIC_WITH_CHEATING
-toggledCategory = TOGGLE_CATEGORY.CHEAT
+toggledCategory = TOGGLE_CATEGORY.ADVANCED
 
 
 class _DSLRoot:
@@ -120,15 +120,15 @@ class _DSLAutoStatcheck(_DSLRoot):
 
 # Methods that automatically cover the gamut of player/opponent status effects
 class _DSLAutoStatuscheck(_DSLRoot):
-    def player_has_status_effect(self, status_effect: OptionalStatus) -> bool:
+    def player_has_status_effect(self, optional_status: OptionalStatus) -> bool:
         precast = self.battle.active_pokemon.status
         assert precast in OptionalStatus.okay_values
-        return OptionalStatus(precast) == status_effect
+        return OptionalStatus(precast) == optional_status
 
-    def opp_has_status_effect(self, status_effect: OptionalStatus) -> bool:
+    def opp_has_status_effect(self, optional_status: OptionalStatus) -> bool:
         precast = self.battle.opponent_active_pokemon.status
         assert precast in OptionalStatus.okay_values
-        return OptionalStatus(precast) == status_effect
+        return OptionalStatus(precast) == optional_status
 
 
 # Methods that check move properties
