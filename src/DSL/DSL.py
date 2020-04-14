@@ -137,7 +137,9 @@ class _DSLMoveProperties(_DSLRoot):
 
 	def type_multiplier(self, move: Move) -> TypeMultiplier:
 		"""Returns the damage multiplier of the given move against the opponent's Pokemon"""
-		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		precast = 0 #default if move is not not typed
+		if move.type != 0:
+			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
 		assert precast in TypeMultiplier.okay_values
 		return TypeMultiplier(precast)
 
@@ -190,18 +192,23 @@ class _DSLCheat(_DSLRoot):
 		return is_sunny and move_is_not_water
 
 	def is_hyper_effective(self, move: Move) -> bool:
-		#print(move.type)
-		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		precast = 0 #default if move is not not typed
+		if move.type != 0:
+			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
 		casted =  TypeMultiplier(precast)
 		return casted == 4
 	
 	def is_super_effective(self, move: Move) -> bool:
-		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		precast = 0 #default if move is not not typed
+		if move.type != 0:
+			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
 		casted =  TypeMultiplier(precast)
 		return casted == 2
 
 	def is_not_ineffective(self, move: Move) -> bool:
-		precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+		precast = 0 #default if move is not not typed
+		if move.type != 0:
+			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
 		casted =  TypeMultiplier(precast)
 		return casted >=1
 
