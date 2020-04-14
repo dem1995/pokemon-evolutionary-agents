@@ -11,7 +11,9 @@ from poke_env.environment.weather import Weather
 from poke_env.environment.status import Status
 from poke_env.player.player import Player
 from poke_env.environment.battle import Battle
-from DSL import DSL, OptionalWeather, TypeMultiplier, StatValue, MovePower, PercentageValue, BaseStatCategory, BattleStatCategory, BattleStatModifier, OptionalStatus
+
+from .DSL import DSL, OptionalWeather, TypeMultiplier, StatValue, MovePower, PercentageValue, \
+    BaseStatCategory, BattleStatCategory, BattleStatModifier, OptionalStatus
 
 RULE: typing.Optional[enum.Enum] = None
 GRAMMAR: typing.Optional[enum.Enum] = None
@@ -55,6 +57,8 @@ DEFAULT_RULES = [
     "START",
     "IF_BLOCK",
     "IF_BODY",
+    "FLAT_IF_BLOCK",
+    "FLAT_IF_BODY",
     "BOOL_EXP",
     "AND_EXP",
     "NOT_EXP",
@@ -148,14 +152,14 @@ class Diminishing(Sampler):
 
 
 class Weighted(Sampler):
-    def __init__(self, dict_):
-        self.dict = dict_
+    def __init__(self, weight_rule_pairs):
+        self.weight_rule_pairs = weight_rule_pairs
 
     def sample(self):
-        weight_sum = sum(self.dict.keys())
+        weight_sum = sum(weight for weight, rule in self.weight_rule_pairs)
         normal_coefficient = 1 / weight_sum
         rand = random.random()
-        for weight, rule in self.dict.items():
+        for weight, rule in self.weight_rule_pairs:
             prob = weight * normal_coefficient
             if rand <= prob:
                 if not isinstance(rule, list):
@@ -179,18 +183,30 @@ def init():
 
     GRAMMAR = {
         RULE.START: [
-            Diminishing(0.7, RULE.IF_BLOCK),
+            Diminishing(0.75, RULE.IF_BLOCK),
         ],
         RULE.IF_BLOCK: [
             [RULE.BOOL_EXP, RULE.IF_BODY],
         ],
         RULE.IF_BODY: [
-            RULE.CHANGE_SCORE
+            Weighted([
+                (0.5, RULE.CHANGE_SCORE),
+                (0.2, RULE.FLAT_IF_BLOCK),
+                (0.2, [RULE.FLAT_IF_BLOCK, RULE.FLAT_IF_BLOCK]),
+                (0.1, [RULE.FLAT_IF_BLOCK, RULE.FLAT_IF_BLOCK, RULE.FLAT_IF_BLOCK]),
+            ])
+        ],
+        RULE.FLAT_IF_BLOCK: [
+            [RULE.BOOL_EXP, RULE.FLAT_IF_BODY],
+        ],
+        RULE.FLAT_IF_BODY: [
+            RULE.CHANGE_SCORE,
         ],
         RULE.BOOL_EXP: [
             RULE.BOOL,
             RULE.AND_EXP,
-            RULE.NOT_EXP,
+            RULE.OR_EXP
+            # RULE.NOT_EXP,
         ],
         RULE.AND_EXP: [
             [RULE.BOOL, RULE.BOOL],
@@ -219,7 +235,7 @@ def init():
         RULE.OPTIONAL_STATUS: ['Status.' + s.name for s in Status] + ['None'],
         RULE.OPTIONAL_WEATHER: ['Weather.' + w.name for w in Weather] + ['None'],
         RULE.NUM_COMPARATOR: [
-            "<=", ">=" 
+            "<=", ">="
         ],
         RULE.ENUM_COMPARATOR: [
             "==", "!="
@@ -295,7 +311,7 @@ def derive(node):
     if isinstance(node.name, str):
         return node.name
     elif isinstance(node.name, RULE):
-        if node.name == RULE.IF_BLOCK:
+        if node.name == RULE.IF_BLOCK or node.name == RULE.FLAT_IF_BLOCK:
             template = "if ({0}):\n{1}\n"
             bool_exp = derive(node.children[0])
             body = indent(derive(node.children[1]), 1)
