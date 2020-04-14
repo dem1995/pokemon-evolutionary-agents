@@ -60,34 +60,34 @@ class _DSLManualStatcheck(_DSLRoot):
     # Methods that return information about player Pokemon's stat boosts
 
     def player_attack_modifier(self) -> BattleStatModifier:
-        precast = self.battle.active_pokemon.boosts['atk']
+        precast = self.battle.active_pokemon._boosts['atk']
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
     def player_spec_attack_modifier(self) -> BattleStatModifier:
-        precast = self.battle.active_pokemon.boosts['spa']
+        precast = self.battle.active_pokemon._boosts['spa']
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
     def player_speed_modifier(self) -> BattleStatModifier:
-        precast = self.battle.active_pokemon.boosts['spe']
+        precast = self.battle.active_pokemon._boosts['spe']
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
     # Methods that return information about opponent Pokemon's stat boosts
 
     def opp_def_modifier(self) -> BattleStatModifier:
-        precast = self.battle.opponent_active_pokemon.boosts['def']
+        precast = self.battle.opponent_active_pokemon._boosts['def']
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
     def opp_spec_def_modifier(self) -> BattleStatModifier:
-        precast = self.battle.opponent_active_pokemon.boosts['spd']
+        precast = self.battle.opponent_active_pokemon._boosts['spd']
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
     def opp_speed_modifier(self) -> BattleStatModifier:
-        precast = self.battle.opponent_active_pokemon.boosts['spe']
+        precast = self.battle.opponent_active_pokemon._boosts['spe']
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
@@ -107,13 +107,13 @@ class _DSLAutoStatcheck(_DSLRoot):
 
     def player_battle_stat_modifier(self,
                                     battle_stat_category: BattleStatCategory) -> BattleStatModifier:
-        precast = self.battle.active_pokemon.boosts[battle_stat_category]
+        precast = self.battle.active_pokemon._boosts[battle_stat_category]
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
     def opponent_battle_stat_modifier(self,
                                       battle_stat_category: BattleStatCategory) -> BattleStatModifier:
-        precast = self.battle.opponent_active_pokemon.boosts[battle_stat_category]
+        precast = self.battle.opponent_active_pokemon._boosts[battle_stat_category]
         assert precast in BattleStatModifier.okay_values
         return BattleStatModifier(precast)
 
@@ -134,7 +134,7 @@ class _DSLAutoStatuscheck(_DSLRoot):
 # Methods that check move properties
 class _DSLMoveProperties(_DSLRoot):
 
-    def gets_STAB(self, move: Move) -> bool:
+    def gets_stab(self, move: Move) -> bool:
         """Returns whether the move shares a type with the Player's active Pokemon"""
         is_type_shared = (move.type in self.battle.active_pokemon.types)
         return is_type_shared
@@ -162,7 +162,7 @@ class _DSLMoveProperties(_DSLRoot):
         return MovePower(precast)
 
     def move_accuracy(self, move: Move) -> PercentageValue:
-        precast = move.accuracy
+        precast = round(move.accuracy * 100)
         assert precast in PercentageValue.okay_values
         return PercentageValue(precast)
 
@@ -284,7 +284,10 @@ class _DSLMisc(_DSLRoot):
             move.weather == Weather.PRIMORDIALSEA)
 
     def check_move_boosts_stat(self, move: Move, battle_stat_category: BattleStatCategory) -> bool:
-        return move.boosts[battle_stat_category] >= 1
+        if move.boosts:
+            return move.boosts.get(battle_stat_category, 0) >= 1
+        else:
+            return False
 
 
 base_classes = set()

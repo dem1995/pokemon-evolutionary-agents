@@ -178,7 +178,6 @@ def init():
     RULE = enum.Enum('RULE', DEFAULT_RULES + [name.upper() for name, _ in lib_functions])
 
     dynamic_rules = [make_dynamic_rule(name, func) for name, func in lib_functions]
-    print(dynamic_rules)
     dynamic_rules = [rule for rule in dynamic_rules if rule]
 
     GRAMMAR = {
