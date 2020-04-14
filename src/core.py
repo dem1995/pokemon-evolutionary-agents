@@ -183,7 +183,7 @@ def init():
 
     GRAMMAR = {
         RULE.START: [
-            Diminishing(0.75, RULE.IF_BLOCK),
+            Diminishing(0.85, RULE.IF_BLOCK),
         ],
         RULE.IF_BLOCK: [
             [RULE.BOOL_EXP, RULE.IF_BODY],
