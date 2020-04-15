@@ -139,13 +139,13 @@ class _DSLMoveProperties(_DSLRoot):
         is_type_shared = (move.type in self.battle.active_pokemon.types)
         return is_type_shared
 
-	def type_multiplier(self, move: Move) -> TypeMultiplier:
-		"""Returns the damage multiplier of the given move against the opponent's Pokemon"""
-		precast = 0 #default if move is not not typed
-		if move.type != 0:
-			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
-		assert precast in TypeMultiplier.okay_values
-		return TypeMultiplier(precast)
+    def type_multiplier(self, move: Move) -> TypeMultiplier:
+        """Returns the damage multiplier of the given move against the opponent's Pokemon"""
+        precast = 0  # default if move is not not typed
+        if move.type != 0:
+            precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+        assert precast in TypeMultiplier.okay_values
+        return TypeMultiplier(precast)
 
     def move_is_status(self, move: Move) -> bool:
         return move.category == MoveCategory.STATUS
@@ -196,26 +196,26 @@ class _DSLCheat(_DSLRoot):
         move_is_not_water = move.type != PokemonType.WATER
         return is_sunny and move_is_not_water
 
-	def is_hyper_effective(self, move: Move) -> bool:
-		precast = 0 #default if move is not not typed
-		if move.type != 0:
-			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
-		casted =  TypeMultiplier(precast)
-		return casted == 4
+    def is_hyper_effective(self, move: Move) -> bool:
+        precast = 0  # default if move is not not typed
+        if move.type != 0:
+            precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+        casted = TypeMultiplier(precast)
+        return casted == 4
 
-	def is_super_effective(self, move: Move) -> bool:
-		precast = 0 #default if move is not not typed
-		if move.type != 0:
-			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
-		casted =  TypeMultiplier(precast)
-		return casted == 2
+    def is_super_effective(self, move: Move) -> bool:
+        precast = 0  # default if move is not not typed
+        if move.type != 0:
+            precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+        casted = TypeMultiplier(precast)
+        return casted == 2
 
-	def is_not_ineffective(self, move: Move) -> bool:
-		precast = 0 #default if move is not not typed
-		if move.type != 0:
-			precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
-		casted =  TypeMultiplier(precast)
-		return casted >=1
+    def is_not_ineffective(self, move: Move) -> bool:
+        precast = 0  # default if move is not not typed
+        if move.type != 0:
+            precast = move.type.damage_multiplier(*self.battle.opponent_active_pokemon.types)
+        casted = TypeMultiplier(precast)
+        return casted >= 1
 
     def is_physical_attacker_and_move_physical(self, move: Move) -> bool:
         is_physical_attacker = (self.battle.active_pokemon.base_stats['atk'] >
