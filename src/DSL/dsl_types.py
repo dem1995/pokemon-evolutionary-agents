@@ -34,7 +34,7 @@ BaseStatCategory.okay_values = frozenset({'hp', 'atk', 'def', 'spa', 'spd', 'spe
 
 #Str wrapper class restricing/providing battle stat types
 BattleStatCategory = NewType("BattleStatCategory", str)
-BattleStatCategory.okay_values = frozenset({'hp', 'atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'})
+BattleStatCategory.okay_values = frozenset({'atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'})
 
 #Int wrapper class restricting/providing battle stat boosts
 BattleStatModifier = NewType("BattleStatModifier", int)
